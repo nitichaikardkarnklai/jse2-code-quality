@@ -7,14 +7,15 @@ public class TextFile {
             FileWriter fileWriter = new FileWriter(fileName);
             fileWriter.close();
         } catch (Exception ignored) {
+
         }
     }
 
-    public void  write(String fileName, String content) {
+    public void write(String fileName, String content) {
         try {
             FileWriter fileWriter = new FileWriter(fileName, true);
             fileWriter.write(content);
-            fileWriter.write("/n");
+            fileWriter.write("\n");
             fileWriter.close();
         } catch (Exception ignored) {
         }
