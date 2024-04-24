@@ -32,7 +32,8 @@ public class CalculatorTest {
     @ParameterizedTest
     @CsvSource({
             "1, 1, 0",
-            "2, 1, 1"
+            "2, 1, 1",
+            "1, 2, -1"
     })
     @DisplayName("subtract return correctly")
     void subtract(int leftOperand, int rightOperand, int expected) {
