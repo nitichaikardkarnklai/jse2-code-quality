@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -37,6 +38,27 @@ class WalletControllerTest {
     void walletMessage() throws Exception {
         mockMvc.perform(get("/api/wallets/me"))
                 .andExpect(jsonPath("$.message", is("Hello, Wallet!")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("when perform on GET: /api/wallets should return Java and Kotlin wallets")
+    void viewWallet() throws Exception {
+        Wallet javaWallet = new Wallet();
+        javaWallet.setWalletName("Java Wallet");
+
+        Wallet kotlinWallet = new Wallet();
+        kotlinWallet.setWalletName("Kotlin Wallet");
+
+        /*
+        We can use BDDMockito given() method to stub the method call.
+        given(walletService.getWalletList()).willReturn(List.of(javaWallet, kotlinWallet));
+         */
+        when(walletService.getWalletList()).thenReturn(List.of(javaWallet, kotlinWallet));
+
+        mockMvc.perform(get("/api/wallets"))
+                .andExpect(jsonPath("$[0].walletName", is("Java Wallet")))
+                .andExpect(jsonPath("$[1].walletName", is("Kotlin Wallet")))
                 .andExpect(status().isOk());
     }
 }
