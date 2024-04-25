@@ -2,6 +2,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NoteTest {
 
@@ -49,6 +50,42 @@ class NoteTest {
         assertEquals(expected, textFile.getSpyCreateCount());
     }
 
+    @Test
+    @DisplayName("write reading note should call write method")
+    void writeNote() {
+        MockWriteTextFile textFile = new MockWriteTextFile();
+        Note note = new Note(textFile);
+
+        note.write("Reading book");
+
+        assertTrue(textFile.isWriteCalled());
+    }
+
+}
+
+class MockWriteTextFile extends TextFile {
+
+    private boolean writeWasCalled;
+//    private String contentWasWritten;
+
+    @Override
+    public void write(String fileName, String content) {
+        writeWasCalled = true;
+//        contentWasWritten = content;
+    }
+
+    @Override
+    public void create(String fileName) {
+
+    }
+
+    public boolean isWriteCalled() {
+        return writeWasCalled;
+    }
+
+//    public String getContentWasWritten() {
+//        return contentWasWritten;
+//    }
 }
 
 class  StubReadingBookNote extends TextFile {
