@@ -6,13 +6,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -29,7 +33,7 @@ class WalletControllerTest {
     void setUp() {
         WalletController walletController = new WalletController(walletService);
         mockMvc = MockMvcBuilders.standaloneSetup(walletController)
-//                .alwaysDo(print()) // for investigation
+                .alwaysDo(print()) // for investigation
                 .build();
     }
 
@@ -60,5 +64,24 @@ class WalletControllerTest {
                 .andExpect(jsonPath("$[0].walletName", is("Java Wallet")))
                 .andExpect(jsonPath("$[1].walletName", is("Kotlin Wallet")))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("when create Java wallet on POST: /api/wallets should return status 200 and body contain Java wallet")
+    void createWallet() throws Exception {
+        Wallet wallet = new Wallet();
+        wallet.setWalletName("Java Wallet");
+
+        when(walletService.createWallet(any()))
+                .thenReturn(wallet);
+
+        mockMvc.perform(
+                        post("/api/wallets")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .content("{\"name\":\"Java Wallet\"}")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.walletName", is("Java Wallet")));
     }
 }
