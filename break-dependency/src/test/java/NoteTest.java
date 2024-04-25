@@ -1,8 +1,12 @@
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class NoteTest {
 
@@ -74,6 +78,32 @@ class NoteTest {
         assertEquals(expected, textFile.getContentWasWritten());
     }
 
+    @Test
+    @DisplayName("mockito: given today is my birthday write reading note and my note should contain 🎂")
+    void mockitoWriteNoteOnMyBirthday() {
+        MockWriteTextFile textFile = new MockWriteTextFile();
+        BirthdayChecker birthdayChecker = mock(BirthdayChecker.class);
+        when(birthdayChecker.isBirthday()).thenReturn(true);
+
+        Note note = new Note(textFile, birthdayChecker);
+
+        note.write("Reading book");
+
+        String expected = "Reading book 🎂";
+        assertEquals(expected, textFile.getContentWasWritten());
+    }
+
+    @Test
+    @DisplayName("given write reading note async should save reading correctly")
+    void writeAsyncNote() {
+        TextFile textFile = new MockWriteTextFile();
+        BirthdayChecker birthdayChecker = new StubBirthdayChecker();
+        Note note = new Note(textFile, birthdayChecker);
+
+        note.writeAsync("Reading book", Schedulers.trampoline())
+                .test()
+                .assertComplete();
+    }
 }
 
 class StubBirthdayChecker extends BirthdayChecker {
